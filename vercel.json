@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "buildCommand": "pnpm build",
+  "devCommand": "pnpm dev",
+  "installCommand": "pnpm install",
+  "functions": {
+    "api/**": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
+  "crons": [],
+  "github": {
+    "enabled": true
+  }
+}
