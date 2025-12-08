@@ -4,7 +4,7 @@
   "devCommand": "pnpm dev",
   "installCommand": "pnpm install",
   "functions": {
-    "app/api/**/route.ts": {
+    "app/api/**": {
       "maxDuration": 60,
       "memory": 1024
     }
