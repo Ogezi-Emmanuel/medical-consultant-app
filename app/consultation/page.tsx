@@ -1,16 +1,17 @@
 "use client"
 
-import { Suspense } from "react"
-import dynamicImport from "next/dynamic"
+import { type Metadata } from "next";
 
-export const dynamic = "force-dynamic"
+import { ConsultationContent } from "./consultation-content";
 
-const ConsultationContent = dynamicImport(() => import("./consultation-content"), { ssr: false })
+export const metadata: Metadata = {
+  title: "Consultation",
+};
 
-export default function ConsultationPage() {
-  return (
-    <Suspense fallback={<div>Loading consultation...</div>}>
-      <ConsultationContent />
-    </Suspense>
-  )
+export default function ConsultationPage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  return <ConsultationContent searchParams={searchParams} />;
 }
