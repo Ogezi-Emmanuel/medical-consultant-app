@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server"
+import { NextResponse, NextRequest } from "next/server"
 import { supabaseServerWithAuth } from "@/lib/supabase"
 
-export async function GET(request: Request, context: { params: { id: string } }) {
-  const { id } = context.params
+export async function GET(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params
   if (!id) return NextResponse.json({ error: "Missing consultation id" }, { status: 400 })
 
   const authHeader = request.headers.get("authorization") ?? ""

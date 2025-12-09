@@ -1,23 +1,32 @@
-# Node / Next.js / Supabase project ignore rules
+# Node / Next.js / Vercel / Supabase project ignore rules
 
-# Node
+# Dependencies
 node_modules/
-.npm/
 
-# Next.js
+# Next.js build outputs
 .next/
-.vercel_build_output/
+out/
 
-# Env
-.env*
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing coverage and temp
+coverage/
+.tmp/
+
+# TypeScript
+*.tsbuildinfo
+
+# Environment variables (DO NOT COMMIT SECRETS)
+.env
+.env.*
 !.env.example
 
-# OS
-.DS_Store
-Thumbs.db
-
 # Vercel local files
-# .vercel/ (kept commented to avoid accidental commit)
+.vercel/
 
 # Supabase local cache (if used)
 .supabase/
