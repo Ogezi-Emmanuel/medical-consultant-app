@@ -1,13 +1,13 @@
 "use client"
 
 import { Suspense } from "react"
-import ConsultationContent from "./consultation-content"
+import dynamic from "next/dynamic"
 
-export const dynamic = "force-dynamic"
+const ConsultationContent = dynamic(() => import("./consultation-content"), { ssr: false })
 
 export default function ConsultationPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<div>Loading consultation...</div>}>
       <ConsultationContent />
     </Suspense>
   )
