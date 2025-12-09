@@ -1,13 +1,13 @@
 "use client"
 
-export const dynamic = "force-dynamic"
-
 import { useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { supabaseBrowser } from "@/lib/supabase"
+
+export const dynamic = "force-dynamic"
 
 export default function ConfirmEmailPage() {
   const router = useRouter()
