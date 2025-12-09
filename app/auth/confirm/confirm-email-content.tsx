@@ -13,8 +13,15 @@ export default function ConfirmEmailContent() {
   const [status, setStatus] = useState<"idle"|"success"|"error">("idle")
   const [message, setMessage] = useState<string>("Verifying your email...")
   const [resending, setResending] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!isMounted) return
+
     async function verify() {
       const token_hash = params.get("token_hash") || params.get("token") || undefined
       const typeParam = params.get("type") || "signup"
@@ -46,7 +53,7 @@ export default function ConfirmEmailContent() {
       }
     }
     verify()
-  }, [params, router])
+  }, [params, router, isMounted])
 
   async function handleResend() {
     setResending(true)
