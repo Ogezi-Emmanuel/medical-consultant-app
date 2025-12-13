@@ -135,10 +135,13 @@ export async function POST(request: Request) {
         async start(controller) {
           const encoder = new TextEncoder()
           try {
+            console.log("[api/chat] streaming reply started; user=", user?.id ?? "anon", "consultation=", consultationId ?? "none")
             for await (const delta of generator) {
               aggregated += delta
-              const line = JSON.stringify({ type: "delta", delta }) + "\n"
-              controller.enqueue(encoder.encode(line))
+              // SSE: each chunk is sent as an event data line, separated by blank line
+              controller.enqueue(encoder.encode(`data: ${delta}\n\n`))
+              // Mirror to terminal
+              console.log("[api/chat] stream delta:", delta)
             }
 
             // After streaming completes, persist messages for authenticated users
@@ -171,12 +174,15 @@ export async function POST(request: Request) {
               }
             }
 
-            const finalLine = JSON.stringify({ type: "final", reply: aggregated, consultation_id: consultationId }) + "\n"
-            controller.enqueue(encoder.encode(finalLine))
+            // Send SSE end marker for clients that expect explicit completion
+            controller.enqueue(encoder.encode(`event: end\n` + `data: [DONE]\n\n`))
+            console.log("[api/chat] stream completed; length=", aggregated.length)
             controller.close()
           } catch (e: any) {
-            const errLine = JSON.stringify({ type: "error", error: e?.message ?? "Streaming failed" }) + "\n"
-            controller.enqueue(encoder.encode(errLine))
+            const errorText = e?.message ?? "Streaming failed"
+            console.error("[api/chat] stream error:", errorText)
+            // Emit SSE error line so client can surface the failure
+            controller.enqueue(encoder.encode(`event: error\n` + `data: ${errorText}\n\n`))
             controller.close()
           }
         }
@@ -184,8 +190,10 @@ export async function POST(request: Request) {
 
       const res = new NextResponse(streamBody, {
         headers: {
-          "Content-Type": "application/x-ndjson",
+          "Content-Type": "text/event-stream; charset=utf-8",
           "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+          "x-vercel-ai-ui-message-stream": "v1",
         }
       })
       for (const op of cookieOps) {
@@ -198,6 +206,8 @@ export async function POST(request: Request) {
     // Non-streaming path
     const result = await model.generateContent(prompt)
     const text = result.response.text()
+    console.log("[api/chat] non-stream reply length:", text.length, "user=", user?.id ?? "anon")
+    console.log("[api/chat] non-stream reply preview:", truncate(text, 200))
 
     // Persist to Supabase if user is authenticated
     let consultationId = initialConsultationId ?? null

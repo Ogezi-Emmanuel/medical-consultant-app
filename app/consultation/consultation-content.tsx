@@ -24,11 +24,26 @@ export function ConsultationContent({ searchParams }: ConsultationContentProps) 
     id: (Array.isArray(searchParams.id) ? searchParams.id[0] : searchParams.id) ?? "",
     body: {
       id: (Array.isArray(searchParams.id) ? searchParams.id[0] : searchParams.id) ?? "",
+      stream: true,
     },
-    onResponse(response) {
-      if (response.status === 401) {
-        toast.error(response.statusText);
+    async onResponse(response: Response) {
+      if (!response.ok) {
+        const resClone = response.clone();
+        try {
+          const data = await resClone.json();
+          if (data?.error) {
+            toast.error(data.error);
+          } else {
+            toast.error(`${response.status} ${response.statusText}`);
+          }
+        } catch {
+          toast.error(`${response.status} ${response.statusText}`);
+        }
       }
+    },
+    onError(error: unknown) {
+      const msg = (error as any)?.message ?? "Chat request failed";
+      toast.error(msg);
     },
   });
 
@@ -40,10 +55,14 @@ export function ConsultationContent({ searchParams }: ConsultationContentProps) 
         role: "assistant",
       });
     },
+    onError(error: unknown) {
+      const msg = (error as any)?.message ?? "Completion request failed";
+      toast.error(msg);
+    },
   });
 
   return (
-    <div className={cn("group w-full overflow-auto pl-0 peer-data-[state=open]:lg:pl-[250px] peer-data-[state=open]:xl:pl-[300px]")}>
+    <div className={cn("group w-full overflow-auto pl-0 peer-data-[state=open]:lg:pl-[250px] peer-data-[state=open]:xl:pl-[300px]")}> 
       <div className="pb-[200px] pt-4 md:pt-10">
         {messages.length ? (
           <>
